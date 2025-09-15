@@ -7,9 +7,9 @@
 int main() {
     WSADATA wsa;
     SOCKET sock;
-    struct sockaddr_in servidor;
-    char mensagem[1024];
-    int tamanhoServidor;
+    struct sockaddr_in servidor, cliente;
+    char buffer[1024], mensagem[1024];
+    int tamanhoServidor, tamanhoCliente, bytesRecebidos;
 
     printf("Inicializando o Winsock...\n");
     if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
@@ -27,15 +27,39 @@ int main() {
     servidor.sin_port = htons(8888);
     servidor.sin_addr.s_addr = inet_addr("127.0.0.1"); // Aberto em localhost
 
-    printf("Digite a mensagem para enviar: ");
-    fgets(mensagem, sizeof(mensagem), stdin);
+    printf("Este sendo o processo cliente, ele inicia a comunicação. Ambas as partes podem encerrá-la.\n");
+    printf("Digite 'sair' para encerrar o chat.\n");
 
-    if (sendto(sock, mensagem, strlen(mensagem), 0, (struct sockaddr*)&servidor, sizeof(servidor)) == SOCKET_ERROR) {
-        printf("Erro ao enviar: %d\n", WSAGetLastError());
-        return 1;
+    while (mensagem != "sair") {
+        printf("Digite a mensagem para enviar: ");
+        fgets(mensagem, sizeof(mensagem), stdin);
+
+        if (sendto(sock, mensagem, strlen(mensagem), 0, (struct sockaddr*)&servidor, sizeof(servidor)) == SOCKET_ERROR) {
+            printf("Erro ao enviar: %d\n", WSAGetLastError());
+            return 1;
+        }
+
+        tamanhoCliente = sizeof(cliente);
+        bytesRecebidos = recvfrom(sock, buffer, sizeof(buffer), 0, (struct sockaddr*)&cliente, &tamanhoCliente);
+
+        if (bytesRecebidos == SOCKET_ERROR) {
+            printf("Erro ao receber dados: %d\n", WSAGetLastError);
+            return 1;
+        }
+
+        buffer[bytesRecebidos] = '\0';
+
+        printf("Mensagem recebida: %s\n", buffer);
+
+        if (buffer == "sair") {
+            printf("Comunicação encerrada pelo servidor.\n");
+            break;
+        }
+        
     }
+    
 
-    printf("Mensagem enviada com sucesso!\n");
+    printf("\nAperte enter para encerrar a aplicação.");
     getchar(); // Espera um enter para fechar a aplicação. Pra usar tempo, Sleep(1000);
 
     closesocket(sock);

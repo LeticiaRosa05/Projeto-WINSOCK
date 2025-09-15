@@ -8,7 +8,7 @@ int main() {
     WSADATA wsa;
     SOCKET sock;
     struct sockaddr_in servidor, cliente;
-    char buffer[1024];
+    char buffer[1024], mensagem[1024];
     int tamanhoCliente, bytesRecebidos;
 
     printf("Inicializando o Winsock...\n");
@@ -33,18 +33,37 @@ int main() {
     }
 
     printf("Servidor UDP aguardando mensagens na porta 8888...\n");
+    printf("Este sendo o processo servidor, ele recebe a primeira comunicação. Ambas as partes podem encerrá-la.\n");
+    printf("Digite 'sair' para encerrar o chat.\n");
 
-    tamanhoCliente = sizeof(cliente);
-    bytesRecebidos = recvfrom(sock, buffer, sizeof(buffer), 0, (struct sockaddr*)&cliente, &tamanhoCliente);
+    while (buffer != "sair") {
+        tamanhoCliente = sizeof(cliente);
+        bytesRecebidos = recvfrom(sock, buffer, sizeof(buffer), 0, (struct sockaddr*)&cliente, &tamanhoCliente);
 
-    if (bytesRecebidos == SOCKET_ERROR) {
-        printf("Erro ao receber dados: %d\n", WSAGetLastError);
-        return 1;
+        if (bytesRecebidos == SOCKET_ERROR) {
+            printf("Erro ao receber dados: %d\n", WSAGetLastError);
+            return 1;
+        }
+
+        buffer[bytesRecebidos] = '\0';
+
+        printf("Mensagem recebida: %s\n", buffer);
+
+        printf("Digite a mensagem para enviar: ");
+        fgets(mensagem, sizeof(mensagem), stdin);
+
+        if (sendto(sock, mensagem, strlen(mensagem), 0, (struct sockaddr*)&servidor, sizeof(servidor)) == SOCKET_ERROR) {
+            printf("Erro ao enviar: %d\n", WSAGetLastError());
+            return 1;
+        }
+
+        if (mensagem == "sair") {
+            printf("Comunicação encerrada pelo cliente.\n");
+            break;
+        }
     }
 
-    buffer[bytesRecebidos] = '\0';
-
-    printf("Mensagem recebida: %s\n", buffer);
+    printf("\nAperte enter para encerrar a aplicação.");
     getchar(); // Espera um enter para fechar a aplicação. Pra usar tempo, Sleep(1000);
 
     closesocket(sock);
