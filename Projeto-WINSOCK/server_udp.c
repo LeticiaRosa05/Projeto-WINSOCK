@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
@@ -57,7 +58,7 @@ int main() {
             return 1;
         }
 
-        if (mensagem == "sair") {
+        if (strcmp(mensagem, "sair\n") == 0 || strcmp(mensagem, "sair") == 0) {
             printf("Comunicação encerrada pelo cliente.\n");
             break;
         }
