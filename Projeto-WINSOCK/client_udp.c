@@ -18,7 +18,8 @@ int main() {
     struct sockaddr_in servidor, cliente;
     char buffer[1024];
     char mensagem[1024];
-    int tamanhoServidor, tamanhoCliente, bytesRecebidos;
+    int tamanhoCliente, bytesRecebidos;
+    const char *palavra_chave_sair = "sair";
 
     printf("Inicializando o Winsock...\n");
     if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
@@ -29,6 +30,7 @@ int main() {
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock == INVALID_SOCKET) {
         printf("Erro ao criar socket: %d\n", WSAGetLastError());
+        WSACleanup();
         return 1;
     }
 
@@ -37,34 +39,37 @@ int main() {
     servidor.sin_addr.s_addr = inet_addr("127.0.0.1"); // Aberto em localhost
 
     printf("Este sendo o processo cliente, ele inicia a comunicação. Ambas as partes podem encerrá-la.\n");
-    printf("Digite 'sair' para encerrar o chat.\n");
+    printf("Digite '%s' para encerrar o chat.\n", palavra_chave_sair);
 
-    while (mensagem != "sair") {
+    while (1) {
         printf("Digite a mensagem para enviar: ");
-        fgets(mensagem, sizeof(mensagem), stdin);
+        if (fgets(mensagem, sizeof(mensagem), stdin) == NULL) {
+            continue;
+        }
+        remover_newline(mensagem);
+
+        if (strcmp(mensagem, palavra_chave_sair) == 0) {
+            sendto(sock, mensagem, strlen(mensagem), 0, (struct sockaddr*)&servidor, sizeof(servidor));
+            printf("Comunicação encerrada pelo Cliente.\n");
+            break;
+        }
 
         if (sendto(sock, mensagem, strlen(mensagem), 0, (struct sockaddr*)&servidor, sizeof(servidor)) == SOCKET_ERROR) {
             printf("Erro ao enviar: %d\n", WSAGetLastError());
-            return 1;
+            break;
         }
 
         tamanhoCliente = sizeof(cliente);
-        bytesRecebidos = recvfrom(sock, buffer, sizeof(buffer), 0, (struct sockaddr*)&cliente, &tamanhoCliente);
+        bytesRecebidos = recvfrom(sock, buffer, sizeof(buffer) - 1, 0, (struct sockaddr*)&cliente, &tamanhoCliente);
 
         if (bytesRecebidos == SOCKET_ERROR) {
             printf("Erro ao receber dados: %d\n", WSAGetLastError);
-            return 1;
+            break;
         }
 
         buffer[bytesRecebidos] = '\0';
 
         printf("Mensagem recebida: %s\n", buffer);
-
-        if (strcmp(buffer, "sair\n") == 0 || strcmp(buffer, "sair") == 0) {
-            printf("Comunicação encerrada pelo servidor.\n");
-            break;
-        }
-        
     }
     
 
