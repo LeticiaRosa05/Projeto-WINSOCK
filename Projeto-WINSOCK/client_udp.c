@@ -69,7 +69,13 @@ int main() {
 
         buffer[bytesRecebidos] = '\0';
 
-        printf("Mensagem recebida: %s\n", buffer);
+        if (strcmp(buffer, palavra_chave_sair) == 0) {
+            printf("\nServidor: %s\n", buffer);
+            printf("Comunicação encerrada pelo Servidor.\n");
+            break;
+        }
+
+        printf("\nMensagem recebida: %s\n", buffer);
     }
     
 
