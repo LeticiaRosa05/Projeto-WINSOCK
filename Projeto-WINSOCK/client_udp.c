@@ -1,14 +1,23 @@
 #include <stdio.h>
+#include <string.h>
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
 // Para compilar, executar o comando gcc client_udp.c -o cliente_udp.exe -lws2_32
 
+void remover_newline(char *str) {
+    size_t len = strlen(str);
+    if (len > 0 && str[len - 1] == '\n') {
+        str[len - 1] = '\0';
+    }
+}
+
 int main() {
     WSADATA wsa;
     SOCKET sock;
     struct sockaddr_in servidor, cliente;
-    char buffer[1024], mensagem[1024];
+    char buffer[1024];
+    char mensagem[1024];
     int tamanhoServidor, tamanhoCliente, bytesRecebidos;
 
     printf("Inicializando o Winsock...\n");
@@ -51,7 +60,7 @@ int main() {
 
         printf("Mensagem recebida: %s\n", buffer);
 
-        if (buffer == "sair") {
+        if (strcmp(buffer, "sair\n") == 0 || strcmp(buffer, "sair") == 0) {
             printf("Comunicação encerrada pelo servidor.\n");
             break;
         }
