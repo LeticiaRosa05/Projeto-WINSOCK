@@ -23,7 +23,7 @@ int main() {
 
     printf("Inicializando o Winsock...\n");
     if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
-        printf("Erro ao iniciar Winsock. Código: %d\n", WSAGetLastError());
+        printf("Erro ao iniciar Winsock. Codigo: %d\n", WSAGetLastError());
         return 1;
     }
 
@@ -36,9 +36,9 @@ int main() {
 
     servidor.sin_family = AF_INET;
     servidor.sin_port = htons(8888);
-    servidor.sin_addr.s_addr = inet_addr("127.0.0.1"); // Aberto em localhost
+    servidor.sin_addr.s_addr = inet_addr("127.0.0.1"); // IP da máquina p conexão
 
-    printf("Este sendo o processo cliente, ele inicia a comunicação. Ambas as partes podem encerrá-la.\n");
+    printf("Este sendo o processo cliente, ele inicia a comunicacao. Ambas as partes podem encerra-la.\n");
     printf("Digite '%s' para encerrar o chat.\n", palavra_chave_sair);
 
     while (1) {
@@ -50,7 +50,7 @@ int main() {
 
         if (strcmp(mensagem, palavra_chave_sair) == 0) {
             sendto(sock, mensagem, strlen(mensagem), 0, (struct sockaddr*)&servidor, sizeof(servidor));
-            printf("Comunicação encerrada pelo Cliente.\n");
+            printf("Comunicacao encerrada pelo Cliente.\n");
             break;
         }
 
@@ -71,7 +71,7 @@ int main() {
 
         if (strcmp(buffer, palavra_chave_sair) == 0) {
             printf("\nServidor: %s\n", buffer);
-            printf("Comunicação encerrada pelo Servidor.\n");
+            printf("Comunicacao encerrada pelo Servidor.\n");
             break;
         }
 
@@ -79,7 +79,7 @@ int main() {
     }
     
 
-    printf("\nAperte enter para encerrar a aplicação.");
+    printf("\nAperte enter para encerrar a aplicacao.");
     getchar(); // Espera um enter para fechar a aplicação. Pra usar tempo, Sleep(1000);
 
     closesocket(sock);
