@@ -36,7 +36,7 @@ int main() {
 
     servidor.sin_family = AF_INET;
     servidor.sin_port = htons(8888);
-    servidor.sin_addr.s_addr = inet_addr("127.0.0.1"); // IP da máquina p conexão
+    servidor.sin_addr.s_addr = inet_addr("127.0.0.1"); // IP do servidor p conexão
 
     printf("Este sendo o processo cliente, ele inicia a comunicacao. Ambas as partes podem encerra-la.\n");
     printf("Digite '%s' para encerrar o chat.\n", palavra_chave_sair);
